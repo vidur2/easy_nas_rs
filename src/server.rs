@@ -1,6 +1,6 @@
 use std::sync::{Mutex, Arc};
 
-use actix_web::{post, web::{Data, self}, HttpResponse};
+use actix_web::{post, web::{Data, self}, HttpResponse, get};
 use serde::Deserialize;
 
 use crate::file_handler::{file_store::FileStore, file_info::FileInfo};
@@ -25,3 +25,8 @@ pub async fn read_file(state: Data<Arc<Mutex<FileStore>>>, data: web::Json<Path>
     }
     return HttpResponse::Ok().finish();
 }
+
+#[get("/")]
+pub async fn index() -> HttpResponse {
+    return HttpResponse::Ok().body("Upload file to get started")
+} 
