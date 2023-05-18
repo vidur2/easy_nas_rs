@@ -8,7 +8,7 @@ pub struct FileStore {
     cache: Cache,
 }
 
-impl<'a> FileStore {
+impl FileStore {
     pub fn new() -> Self {
         return Self {
             cache: Cache::new(),
