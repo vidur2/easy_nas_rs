@@ -5,5 +5,6 @@ use super::file_info::FileInfo;
 #[derive(Debug, Serialize)]
 pub enum Error {
     FileWriteError(FileInfo),
-    FileReadError(String)
+    FileReadError(String),
+    DirReadError(String)
 }

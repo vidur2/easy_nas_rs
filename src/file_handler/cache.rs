@@ -1,6 +1,6 @@
 use std::{collections:: VecDeque};
 
-use super::file_info::FileInfo;
+use super::file_info::{FileInfo};
 
 #[derive(Clone)]
 pub struct Cache {
@@ -39,7 +39,7 @@ impl Cache {
         return None;
     }
 
-    pub fn add_to_cache(&mut self, f: FileInfo) ->Option<FileInfo> {
+    pub fn add_to_cache(&mut self, f: FileInfo) -> Option<FileInfo> {
         self.queue.push_front(f);
         if self.queue.len() > self.max_size {
             return self.queue.pop_back();

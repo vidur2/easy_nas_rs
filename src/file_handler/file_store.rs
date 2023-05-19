@@ -1,6 +1,7 @@
 use super::error::Error;
+use super::file_info::DirInfo;
 use super::{cache::Cache, file_info::FileInfo};
-use std::fs::File;
+use std::fs::{File, FileType};
 use std::io::{Write, Read};
 use std::ops::Drop;
 
@@ -33,6 +34,46 @@ impl FileStore {
             return Ok(file_info)
         }
         return Err(Error::FileReadError(path));
+    }
+
+    pub fn write_dir(dir_info: DirInfo) -> Result<(), Error> {
+        std::fs::create_dir(&dir_info.path);
+        for file in dir_info.info {
+            if let Err(err) = Self::write_file(file.info.clone(), Some(file)) {
+                return Err(err)
+            }
+        }
+
+        for dir in dir_info.sub_dirs {
+            if let Err(err) = Self::write_dir(*dir) {
+                return Err(err);
+            }
+        }
+        return Ok(())
+    }
+
+    pub fn read_dir(&mut self, path: String) -> Result<DirInfo, Error> {
+        match std::fs::read_dir(&path) {
+            Ok(dir) => {
+                let mut inf = DirInfo {
+                    path: path.clone(),
+                    info: Vec::new(),
+                    sub_dirs: Vec::new(),
+                };
+                for elem in dir.into_iter() {
+                    let elem = elem.unwrap();
+                    let metadata = elem.metadata().unwrap();
+                    if metadata.is_file() {
+                        inf.info.push(self.read_file(path.clone()).unwrap());
+                    } else {
+                        inf.sub_dirs.push(Box::new(self.read_dir(String::from(elem.path().to_str().unwrap())).unwrap()));
+                    }
+                }
+            },
+            Err(_) => return Err(Error::DirReadError(path)),
+        }
+
+        return Err(Error::DirReadError(path));
     }
 
     fn write_file<'b>(info: Vec<u8>, file: Option<FileInfo>) -> Result<(), Error> {
